@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal, init_db
 from memory_service import save_memory
-from models import EstadoMundo, Local, NPC, Rotina
+from models import EstadoMundo, Jogador, Local, NPC, Rotina
 
 
 # ============================================================
@@ -538,6 +538,12 @@ def ensure_estado_mundo(db: Session) -> None:
         db.add(EstadoMundo(tick_atual=0, clima="ensolarado", eventos_globais_ativos=[]))
 
 
+def ensure_jogador(db: Session) -> None:
+    """Garante o singleton Jogador(id=1) existe — base do hard state da Fase 8."""
+    if db.get(Jogador, 1) is None:
+        db.add(Jogador(id=1, perfil_psicologico={}))
+
+
 def main() -> None:
     init_db()
     db = SessionLocal()
@@ -567,8 +573,9 @@ def main() -> None:
             )
         db.commit()
 
-        # Estado do mundo
+        # Estado do mundo + Jogador (hard state)
         ensure_estado_mundo(db)
+        ensure_jogador(db)
         db.commit()
 
         # Memórias iniciais (geram embeddings via Nomic — exige LM Studio rodando)
