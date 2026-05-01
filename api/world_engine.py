@@ -24,6 +24,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from config import settings
+from memory_service import save_memory
 from models import EstadoMundo, Local, NPC, Rotina
 
 logger = logging.getLogger("world_engine")
@@ -112,6 +113,18 @@ def advance_world(db: Session, delta_ticks: int = 1) -> TickResult:
         )
         movimentacoes.append(linha)
         logger.info(linha)
+
+        # Memória passiva — registra do ponto de vista do NPC. Falhas no
+        # embedding (ex.: LM Studio offline) não devem derrubar o tick:
+        # o movimento já foi aplicado, só perdemos o vetor desta entrada.
+        memoria_texto = (
+            f"São {agora.strftime('%H:%M')}. Fui para {nome_destino} "
+            f"para {rotina.acao_descrita}"
+        )
+        try:
+            save_memory(db, npc_id=npc.id, texto=memoria_texto, tipo="evento", relevancia=0.5)
+        except Exception:
+            logger.exception("Falha ao gerar memória passiva para %s", npc.nome)
 
     db.commit()
     db.refresh(estado)

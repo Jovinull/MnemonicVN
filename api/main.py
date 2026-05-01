@@ -133,6 +133,20 @@ def create_local(payload: LocalCreate, db: Session = Depends(get_db)) -> Local:
     return local
 
 
+@app.get("/locais", response_model=list[LocalRead])
+def list_locais(db: Session = Depends(get_db)) -> list[Local]:
+    return list(db.scalars(select(Local).order_by(Local.id)).all())
+
+
+@app.get("/locais/{local_id}/npcs", response_model=list[NPCRead])
+def npcs_no_local(local_id: int, db: Session = Depends(get_db)) -> list[NPC]:
+    """Quais NPCs estão neste local agora? Usado pelo main_loop sandbox do Ren'Py."""
+    if db.get(Local, local_id) is None:
+        raise HTTPException(status_code=404, detail="Local não encontrado")
+    stmt = select(NPC).where(NPC.local_atual_id == local_id).order_by(NPC.nome)
+    return list(db.scalars(stmt).all())
+
+
 # ============================================================
 # /interact
 # ============================================================
