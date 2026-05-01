@@ -102,9 +102,18 @@ são equivalentes a passos manuais que você não precisa mais executar:
 2. Aponte `Projects directory` para `MnemonicVN/`.
 3. Selecione `renpy` e clique em *Launch Project*.
 
-A demo abre na sala de aula, apresenta Aria, Mei e Sayuri em sequência,
-chama `/interact` em cada cena e atualiza a expressão do sprite com base no
-`novo_humor` que o Qwen retornar.
+O jogo abre num **loop sandbox** (`label main_loop`):
+
+1. Sincroniza humores do banco (`GET /get-npc-status` para cada NPC).
+2. Carrega a lista de locais (`GET /locais`).
+3. Põe o jogador em "Sala de Aula" como ponto de partida.
+4. Em cada iteração: busca quem está no local atual (`GET /locais/{id}/npcs`),
+   mostra os sprites posicionados (esquerda/centro/direita) e oferece um
+   menu: falar com NPC presente, observar, mudar de local (avança um tick
+   via `POST /world-tick`) ou encerrar o dia.
+
+Como o scheduler do mundo move NPCs entre rotinas em background, voltar
+a um local depois de alguns minutos pode te dar uma cena diferente.
 
 ## Motor do mundo (auto-tick)
 
@@ -161,13 +170,14 @@ o mesmo LM Studio (`localhost:1234/v1`):
 
 1. Adicionar índice `IVFFlat` ou `HNSW` na coluna `memorias.embedding`
    quando a base ultrapassar ~10k vetores.
-2. Gerar memórias passivas no scheduler — quando um NPC se move por
-   rotina, registrar uma "memória de evento" para ele (sem precisar de
-   conversa com o jogador).
-3. Adicionar um quarto humor (`surpreso`) — copiar o asset, adicionar
-   `attribute surpreso:` no `layeredimage` e expandir o `ConditionSwitch`.
-4. Persistir o estado do humor entre sessões do Ren'Py sincronizando com
-   `GET /get-npc-status/{id}` no `start` (hoje ele recomeça em "neutro").
+2. Mostrar o relógio do mundo (tick + hora de jogo) no HUD do Ren'Py.
+3. Adicionar mais humores (ex.: `pensativo`, `tímido`) — copiar o asset,
+   adicionar `attribute X:` no `layeredimage`, expandir o `ConditionSwitch`
+   e a tupla `HUMORES_VALIDOS`.
+4. Permitir trocar `<personagem>_outfit` por evento de jogo (ex.: noite
+   aciona `pajama`, fim de semana aciona `casual`). A camada já existe.
+5. Adicionar o jogador como NPC no banco (com personalidade própria) e
+   permitir que NPCs interajam entre si quando estiverem no mesmo local.
 
 ## Créditos e Agradecimentos (Assets)
 
