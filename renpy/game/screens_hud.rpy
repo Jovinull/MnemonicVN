@@ -5,7 +5,7 @@
 # sprites mas abaixo do `api_thinking` (zorder 100) para não competir com
 # o indicador de carregamento.
 
-screen hud_mundo(hora_str, local_nome):
+screen hud_mundo(hora_str, local_nome, clima_str="Limpo"):
     zorder 90
     modal False
     tag hud  # garante que múltiplos shows substituam ao invés de empilhar
@@ -18,6 +18,11 @@ screen hud_mundo(hora_str, local_nome):
         except Exception:
             _hud_hour = 12
         _hud_icon = u"☀" if 6 <= _hud_hour < 18 else u"☾"  # ☀ / ☾
+        # Texto do clima formatado pra exibição (capitaliza se vier "ensolarado")
+        _hud_clima = (clima_str or "").strip()
+        if _hud_clima and _hud_clima.islower():
+            _hud_clima = _hud_clima.capitalize()
+        _hud_clima_display = u"☁ " + _hud_clima if _hud_clima else ""
 
     frame:
         xalign 1.0
@@ -44,6 +49,12 @@ screen hud_mundo(hora_str, local_nome):
                 size 16
                 color "#cccccc"
                 xalign 0.0
+
+            if _hud_clima_display:
+                text "[_hud_clima_display!q]":
+                    size 14
+                    color "#9fb8d6"
+                    xalign 0.0
 
 
 # ============================================================

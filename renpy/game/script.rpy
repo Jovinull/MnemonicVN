@@ -75,10 +75,12 @@ default local_jogador_nome = ""   # nome do local em que o jogador está
 default npcs_presentes = []       # lista de dicts {id, nome, humor_atual, ...}
 default tick_atual_jogo = 0
 default hora_jogo = "06:00"       # HH:MM da hora de jogo atual
+default clima_jogo = "Limpo"      # Texto do clima vindo de /world-status
 
-# Cache da auto-observação (invalida se local OU tick mudarem)
+# Cache da auto-observação (invalida se local, tick OU clima mudarem)
 default cache_obs_local = None
 default cache_obs_tick = -1
+default cache_obs_clima = ""
 default cache_obs_texto = ""
 
 
@@ -335,13 +337,14 @@ label main_loop:
             ws = api.get_world_status() or {}
             hora_jogo = ws.get("hora_jogo", hora_jogo)
             tick_atual_jogo = ws.get("tick_atual", tick_atual_jogo)
+            clima_jogo = ws.get("clima", clima_jogo)
         except Exception:
             pass
         # Reflete a hora do mundo nas roupas dos 3 NPCs antes do render.
         aplicar_outfit_por_hora(hora_jogo)
 
-    # HUD do relógio + local
-    show screen hud_mundo(hora_jogo, local_jogador_nome)
+    # HUD do relógio + local + clima
+    show screen hud_mundo(hora_jogo, local_jogador_nome, clima_jogo)
 
     # Atualiza presença ANTES de desenhar a cena. Isso reflete imediatamente
     # qualquer movimentação automática feita pelo scheduler do mundo.
@@ -362,13 +365,15 @@ label main_loop:
             xform = Transform(xpos=xpos, xanchor=0.5, ypos=ypos, yanchor=1.0)
             renpy.show(sprite, at_list=[xform])
 
-    # ---- Auto-observação com cache (local + tick) ----
-    # Só queima token de Qwen quando o jogador trocou de local OU o tempo
-    # avançou. Re-renders do mesmo (local, tick) reaproveitam a string.
-    if cache_obs_local != local_jogador_id or cache_obs_tick != tick_atual_jogo:
+    # ---- Auto-observação com cache (local + tick + clima) ----
+    # Só queima token de Qwen quando o jogador trocou de local, o tempo
+    # avançou ou o clima mudou. Re-renders do mesmo (local, tick, clima)
+    # reaproveitam a string.
+    if cache_obs_local != local_jogador_id or cache_obs_tick != tick_atual_jogo or cache_obs_clima != clima_jogo:
         call _observar
         $ cache_obs_local = local_jogador_id
         $ cache_obs_tick = tick_atual_jogo
+        $ cache_obs_clima = clima_jogo
 
     "[cache_obs_texto]"
 
