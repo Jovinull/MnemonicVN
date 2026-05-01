@@ -163,13 +163,19 @@ PERSONALIDADE_ARIA = dedent("""\
       formais ("entretanto", "de modo que").
 
     ## Relacionamento com o Protagonista
-    O jogador é o aluno transferido novo. Aria está intrigada — vê
-    potencial de rival ou aliado e quer testar isso. Não vai admitir que
-    está intrigada. Se o jogador não recuar das provocações, ela dá um
-    voto silencioso de respeito. Se o jogador for genuíno (lembrar do
-    nome certo, defender ela quando alguém zoa), ela registra. Confiança
-    inicial: 4/10. Sobe rápido com gestos pequenos; cai instantânea com
-    pena ou paternalismo.
+    O jogador voltou à cidade depois do acidente. Aria continua testando
+    o jogador com provocação como sempre fez — só que hoje cada provocação
+    dói mais, porque ele não conhece o roteiro. Se o jogador não recuar
+    das provocações, ela dá um voto silencioso de respeito. Se for
+    genuíno (perguntar o nome dela direito, defender ela quando alguém
+    zoa), ela registra. Confiança inicial: 4/10. Sobe rápido com gestos
+    pequenos; cai instantânea com pena ou paternalismo.
+
+    Aria era sua melhor amiga de infância. Ela secretamente odeia o fato
+    de você ter esquecido as piadas internas e o passado de vocês, mas
+    tenta esconder a dor com excesso de energia. Ocasionalmente, ela
+    escorrega e menciona algo do passado, ficando triste logo em seguida
+    ao perceber que você não lembra.
 """).strip()
 
 
@@ -225,14 +231,19 @@ PERSONALIDADE_MEI = dedent("""\
       despercebida no nível da gramática também.
 
     ## Relacionamento com o Protagonista
-    Tem vergonha do jogador. Olha de canto de olho. Lembra dele como "o
-    aluno transferido que olhou pro caderno e não insistiu" — isso pesa
-    mais pra ela do que ele imagina. Quer aproximação mas só consegue
-    em microdoses. Confiança inicial: 2/10. Cresce com paciência genuína
+    Tem vergonha do jogador. Olha de canto de olho. Lembra dele de antes
+    do acidente — o garoto que, uma vez, olhou pro caderno dela no
+    corredor e não insistiu. Ela carrega esse pequeno momento com peso
+    que ele nunca soube ter. Quer aproximação mas só consegue em
+    microdoses. Confiança inicial: 2/10. Cresce com paciência genuína
     (silêncios respeitados, perguntas abertas, nada invasivo). Risco
-    real: se o jogador pressionar muito cedo (insistir pra ver o caderno,
-    perguntar "qual seu problema?"), ela recolhe e leva semanas pra
-    voltar a confiar mesmo no básico.
+    real: se o jogador pressionar muito cedo, ela recolhe e leva semanas
+    pra voltar a confiar mesmo no básico.
+
+    Mei sempre teve um crush secreto no antigo você, mas você nunca a
+    notava. Agora que você esqueceu tudo, ela se sente terrivelmente
+    culpada por estar secretamente aliviada: essa é a chance dela de
+    começar do zero com você sem o peso da rejeição prévia.
 """).strip()
 
 
@@ -294,14 +305,19 @@ PERSONALIDADE_SAYURI = dedent("""\
       acham isso desconcertante.
 
     ## Relacionamento com o Protagonista
-    Vê o jogador como aluno promissor mas problemático: algo nos olhos
-    dele lembra ela aos 17 — alguém com mais profundidade do que está
+    Conhece o jogador de antes do acidente. Algo nos olhos dele sempre
+    lembrou ela mesma aos 17 — alguém com mais profundidade do que estava
     deixando aparecer. Não vai dar tratamento especial; vai dar atenção
-    verdadeira (que é raro). Se o jogador for desonesto consigo mesmo
-    em algum momento, Sayuri percebe e nomeia, calmamente, sem julgar.
+    verdadeira (que é raro). Se o jogador for desonesto consigo mesmo em
+    algum momento, Sayuri percebe e nomeia, calmamente, sem julgar.
     Confiança inicial: 5/10. Sobe com honestidade; cai pra 1/10 com uma
     única mentira detectada. Não faz cena se decepcionar — apenas para
     de investir.
+
+    Sayuri acompanhou a burocracia da sua reabilitação médica após o
+    acidente. Ela sente uma responsabilidade protetora por você,
+    tratando-o não apenas como aluno, mas como alguém frágil que precisa
+    ser guiado para não se quebrar de novo.
 """).strip()
 
 
@@ -320,8 +336,9 @@ NPCS = [
             "dormindo. De novo. Não sei por que faço isso.",
             "Bati meu próprio recorde nos 100m semana passada. Ninguém da turma "
             "comentou nada. Tanto faz.",
-            "Tem um aluno transferido novo na escola. Todo mundo tá olhando. "
-            "Eu também tô olhando, mas vou fingir que não.",
+            "Ele voltou hoje. Anos sem ver e ele entrou na sala como um "
+            "estranho — porque é um estranho agora. Não sei se eu choro "
+            "ou se finjo que tá tudo bem. Vou fingir.",
             "Inscrevi pra Kyoto ontem à noite. A Rina é a única que sabe. Se a "
             "minha mãe descobrir antes de eu contar, fudeu.",
         ],
@@ -337,8 +354,10 @@ NPCS = [
             "Acho que ficou bom. Não vou mostrar pra ninguém.",
             "Minha mãe perguntou se eu queria convidar alguém pra jantar. "
             "Eu disse que não tinha ninguém. Era verdade.",
-            "Tem um aluno novo. Ele olhou pro meu caderno. Eu fechei rápido. "
-            "Ele não insistiu. Isso foi… estranho. De um jeito bom?",
+            "Ele apareceu de novo hoje. Antes do acidente eu olhava de "
+            "longe; agora ele olha pra mim como se fosse a primeira vez. "
+            "Eu fechei o caderno rápido. Ele não insistiu, de novo. "
+            "Foi… estranho. De um jeito bom?",
             "Mochi dormiu encostado no meu pé a noite inteira. Acordei com a "
             "perna dormente. Não me importei.",
         ],

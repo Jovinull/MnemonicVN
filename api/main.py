@@ -173,8 +173,21 @@ def interact(payload: InteractRequest, db: Session = Depends(get_db)) -> Interac
     memorias = retrieve_relevant_context(db, npc.id, payload.player_input, top_k=5)
     contexto = format_context_for_prompt(memorias)
 
+    # Contexto global do protagonista — injetado em TODA interação para que
+    # o NPC reaja à premissa da amnésia (ver Fase 7 do design doc).
+    contexto_jogador = (
+        "CONTEXTO DO JOGADOR: O jogador sofre de amnésia episódica "
+        "irreversível após um acidente. Ele não lembra de NADA do seu "
+        "passado. As memórias antigas foram deletadas. Sua personalidade "
+        "atual é uma lousa em branco e está sendo moldada exclusivamente "
+        "pelo que ele diz agora. Os NPCs lembram dele antes do acidente, "
+        "mas devem reagir e se adaptar a quem ele está se tornando hoje. "
+        "Avalie o tom e a intenção do jogador e responda de forma natural."
+    )
+
     system_prompt = (
         f"Você é {npc.nome}, um NPC em uma Visual Novel.\n"
+        f"{contexto_jogador}\n\n"
         f"Personalidade: {npc.personalidade}\n"
         f"Humor atual: {npc.humor_atual}\n"
         f"Memórias relevantes:\n{contexto}\n\n"
