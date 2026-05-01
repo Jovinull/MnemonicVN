@@ -17,6 +17,7 @@ Observações:
 from __future__ import annotations
 
 import logging
+import random
 from datetime import datetime, time, timedelta
 from typing import NamedTuple
 
@@ -28,6 +29,12 @@ from memory_service import save_memory
 from models import EstadoMundo, Local, NPC, Rotina
 
 logger = logging.getLogger("world_engine")
+
+# Climas suportados — a coluna `EstadoMundo.clima` é texto livre, mas só
+# trocamos para um destes via roleta aleatória. Mantenha capitalizado pra
+# combinar com o que vai pro HUD do jogador.
+CLIMAS_POSSIVEIS = ["Ensolarado", "Nublado", "Chuva Leve", "Tempestade", "Vento Forte"]
+CHANCE_MUDANCA_CLIMA = 0.15  # 15% por chamada de advance_world
 
 
 class TickResult(NamedTuple):
@@ -85,6 +92,20 @@ def advance_world(db: Session, delta_ticks: int = 1) -> TickResult:
     estado = _ensure_estado(db)
     estado.tick_atual = (estado.tick_atual or 0) + delta_ticks
     estado.atualizado_em = datetime.utcnow()
+
+    # Roleta de clima — chance única por chamada. Para chamadas com
+    # delta_ticks > 1 (raras, vindas do POST /world-tick manual), ainda só
+    # rolamos uma vez para não spam-mudar o clima num tick só.
+    if random.random() < CHANCE_MUDANCA_CLIMA:
+        candidatos = [c for c in CLIMAS_POSSIVEIS if c.lower() != (estado.clima or "").lower()]
+        if candidatos:
+            novo_clima = random.choice(candidatos)
+            antigo = estado.clima or "?"
+            estado.clima = novo_clima
+            logger.info(
+                "[t=%s] O clima mudou: %s -> %s",
+                estado.tick_atual, antigo, novo_clima,
+            )
 
     agora = game_time_at_tick(estado.tick_atual)
     movimentacoes: list[str] = []

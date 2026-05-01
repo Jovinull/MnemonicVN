@@ -125,9 +125,11 @@ def world_status(db: Session = Depends(get_db)) -> dict:
     estado = db.scalars(select(EstadoMundo).limit(1)).first()
     tick = estado.tick_atual if estado else 0
     hora = game_time_at_tick(tick)
+    clima = (estado.clima if estado else "Ensolarado") or "Ensolarado"
     return {
         "tick_atual": tick,
         "hora_jogo": hora.strftime("%H:%M"),
+        "clima": clima,
     }
 
 
@@ -208,6 +210,10 @@ def observe(payload: ObserveRequest, db: Session = Depends(get_db)) -> ObserveRe
     jogador = _get_or_create_jogador(db)
     perfil_resumido = _resumo_perfil(jogador.perfil_psicologico or {})
 
+    from models import EstadoMundo
+    estado = db.scalars(select(EstadoMundo).limit(1)).first()
+    clima_atual = (estado.clima if estado else "Ensolarado") or "Ensolarado"
+
     npcs_brief = "\n".join(
         f"- {n.nome} (afeição {n.afeicao}/100, humor {n.humor_atual})"
         for n in npcs
@@ -219,6 +225,10 @@ def observe(payload: ObserveRequest, db: Session = Depends(get_db)) -> ObserveRe
         "total), a atmosfera do local e a linguagem corporal dos NPCs "
         "presentes ao notarem a chegada do jogador.\n\n"
         f"LOCAL: {local.nome}. {local.descricao}\n\n"
+        f"CLIMA ATUAL: {clima_atual}. Descreva como esse clima afeta a "
+        "atmosfera do local — luz que entra pela janela, som de fundo, "
+        "temperatura percebida, umidade — e deixe esses elementos "
+        "interagirem com as ações dos NPCs presentes.\n\n"
         "PERFIL DO JOGADOR (lousa em branco pós-amnésia, ainda se "
         f"definindo): tons predominantes — {perfil_resumido}.\n\n"
         f"NPCS PRESENTES E AFEIÇÃO ATUAL (escala 0–100):\n{npcs_brief}\n\n"
@@ -330,6 +340,10 @@ def interact(payload: InteractRequest, db: Session = Depends(get_db)) -> Interac
     afeicao_atual = npc.afeicao if npc.afeicao is not None else 50
     perfil_resumido = _resumo_perfil(jogador.perfil_psicologico or {})
 
+    from models import EstadoMundo
+    estado = db.scalars(select(EstadoMundo).limit(1)).first()
+    clima_atual = (estado.clima if estado else "Ensolarado") or "Ensolarado"
+
     system_prompt = (
         f"Você é {npc.nome}, um NPC em uma Visual Novel.\n"
         f"{CONTEXTO_JOGADOR}\n\n"
@@ -338,6 +352,9 @@ def interact(payload: InteractRequest, db: Session = Depends(get_db)) -> Interac
         f"Seu nível de afeição pelo jogador é {afeicao_atual}/100. "
         f"{_afeicao_modifier_text(afeicao_atual)}\n"
         f"O jogador tem se mostrado predominantemente: {perfil_resumido}.\n"
+        f"O clima lá fora está: {clima_atual}. Incorpore reações sutis a "
+        "esse clima na sua linguagem corporal se fizer sentido (encolher "
+        "no frio, suspirar com o calor, tensão com tempestade, etc.).\n"
         f"Memórias relevantes:\n{contexto}\n\n"
         f"{payload.contexto_extra or ''}\n\n"
         "Responda SEMPRE em JSON com EXATAMENTE estas chaves:\n"
