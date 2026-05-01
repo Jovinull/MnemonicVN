@@ -11,6 +11,8 @@ class NPCBase(BaseModel):
     atributos_base: dict[str, Any] = Field(default_factory=dict)
     local_atual_id: int | None = None
     humor_atual: str = "neutro"
+    afeicao: int = 50
+    conhece_jogador: bool = True
 
 
 class NPCCreate(NPCBase):
@@ -74,7 +76,19 @@ class InteractResponse(BaseModel):
     fala: str
     novo_humor: str | None = None
     acao: str | None = None
+    mudanca_afeicao: int = 0
+    nova_afeicao: int = 50
+    tom_jogador: str | None = None
     raw_json: dict[str, Any]
+
+
+# ---------- Jogador ----------
+class JogadorRead(BaseModel):
+    id: int
+    perfil_psicologico: dict[str, int] = Field(default_factory=dict)
+
+    class Config:
+        from_attributes = True
 
 
 # ---------- Tick / Mundo ----------

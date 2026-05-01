@@ -3,6 +3,7 @@ from datetime import datetime
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     JSON,
+    Boolean,
     Column,
     DateTime,
     Float,
@@ -39,6 +40,10 @@ class NPC(Base):
     atributos_base = Column(JSON, nullable=False, default=dict)  # ex.: {"forca": 5, "carisma": 7}
     local_atual_id = Column(Integer, ForeignKey("locais.id"), nullable=True)
     humor_atual = Column(String(60), nullable=False, default="neutro")
+    # Hard state — escala fixa de 0 a 100 ajustada por delta vindo do Qwen.
+    afeicao = Column(Integer, nullable=False, default=50)
+    # Para NPCs futuros que o jogador encontre do zero (sem laço pré-acidente).
+    conhece_jogador = Column(Boolean, nullable=False, default=True)
 
     local_atual = relationship("Local", back_populates="npcs")
     rotinas = relationship("Rotina", back_populates="npc", cascade="all, delete-orphan")
@@ -81,3 +86,14 @@ class EstadoMundo(Base):
     clima = Column(String(60), nullable=False, default="ensolarado")
     eventos_globais_ativos = Column(JSON, nullable=False, default=list)
     atualizado_em = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class Jogador(Base):
+    """Singleton de id=1 — usado como hard state do protagonista (a "lousa em
+    branco" que o Qwen vai descrevendo via contadores de tom)."""
+    __tablename__ = "jogador"
+
+    id = Column(Integer, primary_key=True)  # sempre 1
+    # Acumulador de tons classificados pelo Qwen a cada /interact.
+    # Ex.: {"Gentil": 5, "Curioso": 3, "Frio": 1, "Agressivo": 0}
+    perfil_psicologico = Column(JSON, nullable=False, default=dict)
