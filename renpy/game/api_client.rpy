@@ -127,6 +127,12 @@ init -10 python:
         def get_world_status(self):
             return self._request("GET", "/world-status")
 
+        def observe(self, local_id, jogador_id=1):
+            return self._request("POST", "/observe", {
+                "local_id": local_id,
+                "jogador_id": jogador_id,
+            })
+
         # ---- endpoints async ----
         def interact_async(self, npc_id, player_input, contexto_extra=None):
             handle = AsyncRequest(label="interact:{0}".format(npc_id))
@@ -135,6 +141,10 @@ init -10 python:
         def world_tick_async(self, delta_ticks=1):
             handle = AsyncRequest(label="world-tick")
             return handle.start(self.world_tick, delta_ticks)
+
+        def observe_async(self, local_id, jogador_id=1):
+            handle = AsyncRequest(label="observe:{0}".format(local_id))
+            return handle.start(self.observe, local_id, jogador_id)
 
 
     api = APIClient()
@@ -153,6 +163,18 @@ init -10 python:
             data.get("novo_humor"),
             data.get("acao"),
         )
+
+
+    def parse_observe_response(handle):
+        """Helper: extrai o campo `descricao` da resposta de /observe.
+        Em caso de erro de rede ou descrição vazia, devolve um fallback curto."""
+        if not handle.done:
+            return "(observando...)"
+        if handle.error:
+            return "[erro ao observar: {0}]".format(handle.error)
+        data = handle.result or {}
+        descricao = (data.get("descricao") or "").strip()
+        return descricao or "Você olha em volta. Nada chama atenção."
 
 
     # Mantido por compatibilidade — código novo deve usar `interact_async`.

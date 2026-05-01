@@ -147,6 +147,60 @@ label _talk_with_mei:
     return
 
 
+# ============================================================
+# Observação dinâmica do ambiente — narrador via /observe
+# ============================================================
+# Mostra a screen `api_observing` enquanto a thread de /observe roda,
+# então exibe a descrição como narração padrão (sem speaker).
+
+label _observar:
+    if not api_online:
+        "Você fica em silêncio um instante, só olhando ao redor."
+        return
+
+    python:
+        obs_handle = api.observe_async(local_jogador_id)
+
+    show screen api_observing(handle=obs_handle)
+
+    while not obs_handle.done:
+        $ renpy.pause(0.2, hard=True)
+
+    hide screen api_observing
+
+    $ obs_descricao = parse_observe_response(obs_handle)
+    "[obs_descricao]"
+    return
+
+
+# Screen de loading dedicada ao /observe — reaproveita o transform
+# `thinking_dots` definido em screens_loading.rpy.
+screen api_observing(handle=None):
+    zorder 100
+    modal False
+    tag thinking
+
+    frame:
+        xalign 0.5
+        yalign 0.92
+        background "#000000a0"
+        padding (24, 12)
+
+        hbox:
+            spacing 12
+            text "Observando o ambiente":
+                color "#ffffff"
+                size 22
+            text "...":
+                color "#ffffff"
+                size 22
+                at thinking_dots
+            if handle is not None:
+                text "([handle.elapsed_ms()] ms)":
+                    color "#aaaaaa"
+                    size 16
+
+
 label _talk_with_sayuri:
     menu:
         "O que você diz pra Sayuri?"
@@ -302,12 +356,8 @@ label main_loop:
             xform = Transform(xpos=xpos, xanchor=0.5, ypos=ypos, yanchor=1.0)
             renpy.show(sprite, at_list=[xform])
 
-    # Narração curta dependendo de quem está aqui
-    if npcs_presentes:
-        $ nomes_str = ", ".join(n["nome"].split()[0] for n in npcs_presentes)
-        "Você está em [local_jogador_nome]. [nomes_str] está aqui."
-    else:
-        "Você está em [local_jogador_nome]. Não tem ninguém por perto."
+    # (a narração de quem está aqui agora vem dinamicamente do /observe,
+    # acionado pela escolha "Apenas observar" no menu)
 
     # ---- Menu principal ----
     $ destinos = [l for l in locais_cache if l["id"] != local_jogador_id]
@@ -329,7 +379,7 @@ label main_loop:
             jump main_loop
 
         "Apenas observar":
-            "Você fica em silêncio um instante, só olhando ao redor."
+            call _observar
             jump main_loop
 
         "Ir para outro lugar...":
