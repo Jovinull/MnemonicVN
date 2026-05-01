@@ -124,6 +124,9 @@ init -10 python:
         def npcs_no_local(self, local_id):
             return self._request("GET", "/locais/{0}/npcs".format(local_id))
 
+        def get_world_status(self):
+            return self._request("GET", "/world-status")
+
         # ---- endpoints async ----
         def interact_async(self, npc_id, player_input, contexto_extra=None):
             handle = AsyncRequest(label="interact:{0}".format(npc_id))

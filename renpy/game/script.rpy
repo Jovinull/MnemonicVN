@@ -74,6 +74,7 @@ default local_jogador_id = None   # int — ID do local em que o jogador está
 default local_jogador_nome = ""   # nome do local em que o jogador está
 default npcs_presentes = []       # lista de dicts {id, nome, humor_atual, ...}
 default tick_atual_jogo = 0
+default hora_jogo = "06:00"       # HH:MM da hora de jogo atual
 
 
 # ============================================================
@@ -266,6 +267,21 @@ label intro:
 # ============================================================
 label main_loop:
 
+    # ---- Snapshot do mundo ----
+    # /world-status é barato (1 SELECT, sem LLM), seguro chamar sync.
+    python:
+        try:
+            ws = api.get_world_status() or {}
+            hora_jogo = ws.get("hora_jogo", hora_jogo)
+            tick_atual_jogo = ws.get("tick_atual", tick_atual_jogo)
+        except Exception:
+            pass
+        # Reflete a hora do mundo nas roupas dos 3 NPCs antes do render.
+        aplicar_outfit_por_hora(hora_jogo)
+
+    # HUD do relógio + local
+    show screen hud_mundo(hora_jogo, local_jogador_nome)
+
     # Atualiza presença ANTES de desenhar a cena. Isso reflete imediatamente
     # qualquer movimentação automática feita pelo scheduler do mundo.
     $ _refresh_presentes()
@@ -358,6 +374,7 @@ screen choose_destino(destinos):
 # Encerramentos
 # ============================================================
 label end_day:
+    hide screen hud_mundo
     scene bg street with fade
     "Final do dia. As luzes da rua principal já estão acesas."
     "Você decide voltar pra casa. Amanhã tem mais."
@@ -366,6 +383,7 @@ label end_day:
 
 
 label end_offline:
+    hide screen hud_mundo
     scene black with fade
     centered "Sem backend, sem mundo.\nSuba o backend e rode `python manage.py seed`."
     return

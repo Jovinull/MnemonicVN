@@ -115,6 +115,20 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/world-status")
+def world_status(db: Session = Depends(get_db)) -> dict:
+    """Snapshot leve do tempo de jogo. Usado pelo HUD do Ren'Py em cada
+    iteração do main_loop — barato (apenas 1 SELECT, sem LLM)."""
+    from models import EstadoMundo
+    estado = db.scalars(select(EstadoMundo).limit(1)).first()
+    tick = estado.tick_atual if estado else 0
+    hora = game_time_at_tick(tick)
+    return {
+        "tick_atual": tick,
+        "hora_jogo": hora.strftime("%H:%M"),
+    }
+
+
 @app.post("/npcs", response_model=NPCRead, status_code=201)
 def create_npc(payload: NPCCreate, db: Session = Depends(get_db)) -> NPC:
     npc = NPC(**payload.model_dump())
