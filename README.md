@@ -15,6 +15,7 @@ MnemonicVN/
 │   ├── memory_service.py         #   save_memory / retrieve_relevant_context
 │   ├── world_engine.py           #   advance_world: hora de jogo + movimento por rotina
 │   ├── seed.py                   #   popula 3 NPCs + locais + rotinas + memórias
+│   ├── manage.py                 #   CLI: run / init-db / reset-db / seed
 │   ├── config.py
 │   ├── requirements.txt
 │   └── .env.example
@@ -58,12 +59,12 @@ para a coluna `personalidade` no `POST /npcs` via o `seed.py`.
 ## Como rodar
 
 ### 1. PostgreSQL
-```sql
-CREATE DATABASE vividnexus;
-\c vividnexus
-CREATE EXTENSION IF NOT EXISTS vector;
-```
-Ajuste `DATABASE_URL` em `api/.env` (copie de `.env.example`).
+Tenha um PostgreSQL 14+ rodando localmente com a extensão **pgvector**
+disponível (no Windows, instaladores oficiais já trazem; em Linux, instale
+o pacote `postgresql-XX-pgvector`). Não precisa criar o banco manualmente
+— o `manage.py` faz isso. Só ajuste `DATABASE_URL` em `api/.env` (copie
+de `.env.example`) com usuário e senha que tenham permissão de
+`CREATE DATABASE`.
 
 ### 2. LM Studio
 Abra o LM Studio, carregue os dois modelos e habilite o servidor local
@@ -74,16 +75,27 @@ Abra o LM Studio, carregue os dois modelos e habilite o servidor local
 ```bash
 cd api
 pip install -r requirements.txt
-python main.py            # sobe em http://localhost:8000
+
+python manage.py init-db   # cria banco vividnexus + extensão vector + tabelas
+python manage.py seed      # popula 3 NPCs, 9 locais, 13 rotinas, 9 memórias
+python manage.py run       # sobe em http://localhost:8000
 ```
 
-Em outro terminal (com o backend rodando), popular o mundo:
+Para limpar tudo e começar do zero:
 ```bash
-cd api
-python seed.py            # cria 3 NPCs, 9 locais, 13 rotinas, 9 memórias iniciais
+python manage.py reset-db          # pede confirmação
+python manage.py reset-db --yes    # sem confirmação
 ```
 
-`seed.py` é idempotente — pode rodar de novo sem duplicar.
+`manage.py` é o painel de controle do backend — todos os comandos abaixo
+são equivalentes a passos manuais que você não precisa mais executar:
+
+| Comando      | O que faz                                                     |
+|--------------|---------------------------------------------------------------|
+| `run`        | `uvicorn main:app` com `reload=False` (não duplica scheduler) |
+| `init-db`    | `CREATE DATABASE` + `CREATE EXTENSION vector` + `create_all`  |
+| `seed`       | popula NPCs, Locais, Rotinas, Memórias iniciais (idempotente) |
+| `reset-db`   | dropa o banco inteiro, recria, e roda o seed                  |
 
 ### 4. Ren'Py
 1. Abra o Ren'Py SDK launcher.
@@ -156,3 +168,26 @@ o mesmo LM Studio (`localhost:1234/v1`):
    `attribute surpreso:` no `layeredimage` e expandir o `ConditionSwitch`.
 4. Persistir o estado do humor entre sessões do Ren'Py sincronizando com
    `GET /get-npc-status/{id}` no `start` (hoje ele recomeça em "neutro").
+
+## Créditos e Agradecimentos (Assets)
+
+### Sprites de Personagens
+Arte original por **Sutemo** (Stereo-Mono).
+- **Links de Apoio:** [Ko-fi](https://ko-fi.com/sutemo) | [DeviantArt](https://www.deviantart.com/stereo-mono)
+- **Pacotes Utilizados:**
+  - [Female Mature Anime Sprite (V1/V2)](https://sutemo.itch.io/female-mature-anime-sprite)
+  - [Female Character Sprite (V1/V2)](https://sutemo.itch.io/female-character)
+  - [Halfbody Female Character Sprite](https://sutemo.itch.io/halfbodyfemalesutemo)
+  - [Male Character Sprite](https://sutemo.itch.io/male-character-sprite-for-visual-novel)
+- **Licença (Sutemo):** Os sprites podem ser usados em projetos pessoais ou comerciais (jogos, vídeos, etc.). É proibida a revenda dos sprites por si só, incluindo a criação de criadores de personagens (character creators).
+
+### Backgrounds (Cenários)
+Arte original por **Noraneko Games** (Yumebackground).
+- **Link do Projeto:** [Yumebackground Pack](https://noranekogames.itch.io/yumebackground)
+- **Regras de Uso (Noraneko Games):**
+  - O crédito a "Noraneko Games" é obrigatório e deve ser dado nos créditos do jogo, em um arquivo de texto acompanhando o jogo, ou na descrição de onde o jogo é baixado.
+  - Os assets não podem ser revendidos sozinhos, dentro ou fora do jogo.
+  - Não utilizar para glorificar pedofilia, homofobia, racismo ou ameaças a pessoas reais.
+  - Uso comercial é permitido para jogos (desde que o usuário não tenha que comprar o background especificamente para vê-lo).
+  - É permitida a modificação da imagem (mudar cores, desenhar por cima à mão, adicionar personagens), desde que as regras originais continuem sendo seguidas.
+  - **RESTRIÇÃO ESTRITA DE IA:** Nenhum lançamento da Noraneko Games pode ser usado com IA de forma alguma (incluindo, mas não se limitando a treinamento, img2img, retoques, ou emparelhado com). *(Nota do desenvolvedor: Os cenários neste projeto são exibidos como arte final 2D estática e não interagem, alimentam ou são modificados pela IA generativa textual do projeto).*
