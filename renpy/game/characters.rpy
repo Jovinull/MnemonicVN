@@ -59,22 +59,27 @@ layeredimage aria_full:
             "sprites/heads/aria_head_triste.png"
         attribute irritado:
             "sprites/heads/aria_head_irritado.png"
+        attribute surpreso:
+            "sprites/heads/aria_head_surpreso.png"
 
 
 # Sprite reativo: segue automaticamente as variáveis aria_humor / aria_outfit.
 image aria_dynamic = ConditionSwitch(
-    "aria_humor == 'feliz' and aria_outfit == 'casual'",      "aria_full feliz casual",
-    "aria_humor == 'feliz' and aria_outfit == 'pajama'",      "aria_full feliz pajama",
-    "aria_humor == 'feliz'",                                  "aria_full feliz seifuku",
-    "aria_humor == 'triste' and aria_outfit == 'casual'",     "aria_full triste casual",
-    "aria_humor == 'triste' and aria_outfit == 'pajama'",     "aria_full triste pajama",
-    "aria_humor == 'triste'",                                 "aria_full triste seifuku",
-    "aria_humor == 'irritado' and aria_outfit == 'casual'",   "aria_full irritado casual",
-    "aria_humor == 'irritado' and aria_outfit == 'pajama'",   "aria_full irritado pajama",
-    "aria_humor == 'irritado'",                               "aria_full irritado seifuku",
-    "aria_outfit == 'casual'",                                "aria_full neutro casual",
-    "aria_outfit == 'pajama'",                                "aria_full neutro pajama",
-    "True",                                                   "aria_full neutro seifuku",
+    "aria_humor == 'feliz' and aria_outfit == 'casual'",       "aria_full feliz casual",
+    "aria_humor == 'feliz' and aria_outfit == 'pajama'",       "aria_full feliz pajama",
+    "aria_humor == 'feliz'",                                   "aria_full feliz seifuku",
+    "aria_humor == 'triste' and aria_outfit == 'casual'",      "aria_full triste casual",
+    "aria_humor == 'triste' and aria_outfit == 'pajama'",      "aria_full triste pajama",
+    "aria_humor == 'triste'",                                  "aria_full triste seifuku",
+    "aria_humor == 'irritado' and aria_outfit == 'casual'",    "aria_full irritado casual",
+    "aria_humor == 'irritado' and aria_outfit == 'pajama'",    "aria_full irritado pajama",
+    "aria_humor == 'irritado'",                                "aria_full irritado seifuku",
+    "aria_humor == 'surpreso' and aria_outfit == 'casual'",    "aria_full surpreso casual",
+    "aria_humor == 'surpreso' and aria_outfit == 'pajama'",    "aria_full surpreso pajama",
+    "aria_humor == 'surpreso'",                                "aria_full surpreso seifuku",
+    "aria_outfit == 'casual'",                                 "aria_full neutro casual",
+    "aria_outfit == 'pajama'",                                 "aria_full neutro pajama",
+    "True",                                                    "aria_full neutro seifuku",
 )
 
 
@@ -105,21 +110,26 @@ layeredimage mei_full:
             "sprites/heads/mei_head_triste.png"
         attribute irritado:
             "sprites/heads/mei_head_irritado.png"
+        attribute surpreso:
+            "sprites/heads/mei_head_surpreso.png"
 
 
 image mei_dynamic = ConditionSwitch(
-    "mei_humor == 'feliz' and mei_outfit == 'seifuku'",       "mei_full feliz seifuku",
-    "mei_humor == 'feliz' and mei_outfit == 'pajama'",        "mei_full feliz pajama",
-    "mei_humor == 'feliz'",                                   "mei_full feliz casual",
-    "mei_humor == 'triste' and mei_outfit == 'seifuku'",      "mei_full triste seifuku",
-    "mei_humor == 'triste' and mei_outfit == 'pajama'",       "mei_full triste pajama",
-    "mei_humor == 'triste'",                                  "mei_full triste casual",
-    "mei_humor == 'irritado' and mei_outfit == 'seifuku'",    "mei_full irritado seifuku",
-    "mei_humor == 'irritado' and mei_outfit == 'pajama'",     "mei_full irritado pajama",
-    "mei_humor == 'irritado'",                                "mei_full irritado casual",
-    "mei_outfit == 'seifuku'",                                "mei_full neutro seifuku",
-    "mei_outfit == 'pajama'",                                 "mei_full neutro pajama",
-    "True",                                                   "mei_full neutro casual",
+    "mei_humor == 'feliz' and mei_outfit == 'seifuku'",        "mei_full feliz seifuku",
+    "mei_humor == 'feliz' and mei_outfit == 'pajama'",         "mei_full feliz pajama",
+    "mei_humor == 'feliz'",                                    "mei_full feliz casual",
+    "mei_humor == 'triste' and mei_outfit == 'seifuku'",       "mei_full triste seifuku",
+    "mei_humor == 'triste' and mei_outfit == 'pajama'",        "mei_full triste pajama",
+    "mei_humor == 'triste'",                                   "mei_full triste casual",
+    "mei_humor == 'irritado' and mei_outfit == 'seifuku'",     "mei_full irritado seifuku",
+    "mei_humor == 'irritado' and mei_outfit == 'pajama'",      "mei_full irritado pajama",
+    "mei_humor == 'irritado'",                                 "mei_full irritado casual",
+    "mei_humor == 'surpreso' and mei_outfit == 'seifuku'",     "mei_full surpreso seifuku",
+    "mei_humor == 'surpreso' and mei_outfit == 'pajama'",      "mei_full surpreso pajama",
+    "mei_humor == 'surpreso'",                                 "mei_full surpreso casual",
+    "mei_outfit == 'seifuku'",                                 "mei_full neutro seifuku",
+    "mei_outfit == 'pajama'",                                  "mei_full neutro pajama",
+    "True",                                                    "mei_full neutro casual",
 )
 
 
@@ -150,21 +160,26 @@ layeredimage sayuri_full:
             "sprites/heads/sayuri_head_triste.png"
         attribute irritado:
             "sprites/heads/sayuri_head_irritado.png"
+        attribute surpreso:
+            "sprites/heads/sayuri_head_surpreso.png"
 
 
 image sayuri_dynamic = ConditionSwitch(
-    "sayuri_humor == 'feliz' and sayuri_outfit == 'casual'",    "sayuri_full feliz casual",
-    "sayuri_humor == 'feliz' and sayuri_outfit == 'dress'",     "sayuri_full feliz dress",
-    "sayuri_humor == 'feliz'",                                  "sayuri_full feliz office",
-    "sayuri_humor == 'triste' and sayuri_outfit == 'casual'",   "sayuri_full triste casual",
-    "sayuri_humor == 'triste' and sayuri_outfit == 'dress'",    "sayuri_full triste dress",
-    "sayuri_humor == 'triste'",                                 "sayuri_full triste office",
-    "sayuri_humor == 'irritado' and sayuri_outfit == 'casual'", "sayuri_full irritado casual",
-    "sayuri_humor == 'irritado' and sayuri_outfit == 'dress'",  "sayuri_full irritado dress",
-    "sayuri_humor == 'irritado'",                               "sayuri_full irritado office",
-    "sayuri_outfit == 'casual'",                                "sayuri_full neutro casual",
-    "sayuri_outfit == 'dress'",                                 "sayuri_full neutro dress",
-    "True",                                                     "sayuri_full neutro office",
+    "sayuri_humor == 'feliz' and sayuri_outfit == 'casual'",     "sayuri_full feliz casual",
+    "sayuri_humor == 'feliz' and sayuri_outfit == 'dress'",      "sayuri_full feliz dress",
+    "sayuri_humor == 'feliz'",                                   "sayuri_full feliz office",
+    "sayuri_humor == 'triste' and sayuri_outfit == 'casual'",    "sayuri_full triste casual",
+    "sayuri_humor == 'triste' and sayuri_outfit == 'dress'",     "sayuri_full triste dress",
+    "sayuri_humor == 'triste'",                                  "sayuri_full triste office",
+    "sayuri_humor == 'irritado' and sayuri_outfit == 'casual'",  "sayuri_full irritado casual",
+    "sayuri_humor == 'irritado' and sayuri_outfit == 'dress'",   "sayuri_full irritado dress",
+    "sayuri_humor == 'irritado'",                                "sayuri_full irritado office",
+    "sayuri_humor == 'surpreso' and sayuri_outfit == 'casual'",  "sayuri_full surpreso casual",
+    "sayuri_humor == 'surpreso' and sayuri_outfit == 'dress'",   "sayuri_full surpreso dress",
+    "sayuri_humor == 'surpreso'",                                "sayuri_full surpreso office",
+    "sayuri_outfit == 'casual'",                                 "sayuri_full neutro casual",
+    "sayuri_outfit == 'dress'",                                  "sayuri_full neutro dress",
+    "True",                                                      "sayuri_full neutro office",
 )
 
 
@@ -172,7 +187,7 @@ image sayuri_dynamic = ConditionSwitch(
 # Helper Python: aplicar humor recebido da API
 # ============================================================
 init python:
-    HUMORES_VALIDOS = ("neutro", "feliz", "triste", "irritado")
+    HUMORES_VALIDOS = ("neutro", "feliz", "triste", "irritado", "surpreso")
 
     def apply_humor(personagem, novo_humor):
         """Atualiza a variável global `<personagem>_humor` se o valor for válido."""

@@ -118,6 +118,12 @@ init -10 python:
         def get_npc_status(self, npc_id):
             return self._request("GET", "/get-npc-status/{0}".format(npc_id))
 
+        def list_locais(self):
+            return self._request("GET", "/locais")
+
+        def npcs_no_local(self, local_id):
+            return self._request("GET", "/locais/{0}/npcs".format(local_id))
+
         # ---- endpoints async ----
         def interact_async(self, npc_id, player_input, contexto_extra=None):
             handle = AsyncRequest(label="interact:{0}".format(npc_id))
