@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+build/
+dist/
+
+# Ren'Py
+renpy/game/saves/
+renpy/game/cache/
+renpy/game/tl/
+renpy/game/gui/
+renpy/build/
+*.rpyc
+*.rpymc
+*.pyo
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
