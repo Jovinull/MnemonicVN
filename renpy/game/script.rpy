@@ -257,8 +257,9 @@ label start:
 label intro:
     $ _bg = bg_alias_for_local(local_jogador_nome)
     scene expression _bg with fade
-    "Você acordou cedo hoje. Cidade pequena, ar de início de semana letivo."
-    "Você é novo aqui. Três rostos vão atravessar seus dias — quem você procura primeiro depende de você."
+    "Os médicos chamaram de Amnésia Retrógrada Episódica. Um nome chique para dizer que o 'você' de antes do acidente foi deletado para sempre."
+    "Você sabe ler, fazer contas, sabe que o céu é azul. Mas não sabe quem amou, quem odiou, nem por que voltou para esta cidade."
+    "Essas pessoas conhecem um fantasma com o seu rosto. Seu trabalho agora não é lembrar do passado... é decidir quem você vai ser daqui pra frente."
     jump main_loop
 
 
