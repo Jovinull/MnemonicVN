@@ -17,6 +17,7 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import Depends, FastAPI, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -160,6 +161,103 @@ def npcs_no_local(local_id: int, db: Session = Depends(get_db)) -> list[NPC]:
         raise HTTPException(status_code=404, detail="Local não encontrado")
     stmt = select(NPC).where(NPC.local_atual_id == local_id).order_by(NPC.nome)
     return list(db.scalars(stmt).all())
+
+
+# ============================================================
+# /observe — narração reativa pelo Qwen como Narrador
+# ============================================================
+# Schemas mantidos inline pra evitar mexer em schemas.py nesta fase.
+class ObserveRequest(BaseModel):
+    local_id: int
+    jogador_id: int = 1
+
+
+class ObserveResponse(BaseModel):
+    descricao: str
+
+
+def _narracao_local_vazio(local: Local) -> str:
+    return (
+        f"{local.descricao} "
+        "Você fica um instante em silêncio, ouvindo o ambiente. "
+        "Não tem mais ninguém aqui."
+    )
+
+
+def _narracao_fallback(local: Local, npcs: list[NPC]) -> str:
+    nomes = ", ".join(n.nome.split()[0] for n in npcs)
+    return f"Você está em {local.nome}. {nomes} ocupam o espaço, cada um nas suas próprias coisas."
+
+
+@app.post("/observe", response_model=ObserveResponse)
+def observe(payload: ObserveRequest, db: Session = Depends(get_db)) -> ObserveResponse:
+    local = db.get(Local, payload.local_id)
+    if local is None:
+        raise HTTPException(status_code=404, detail="Local não encontrado")
+
+    npcs = list(
+        db.scalars(
+            select(NPC).where(NPC.local_atual_id == local.id).order_by(NPC.nome)
+        ).all()
+    )
+
+    # Local vazio: descrição estática curta, sem queimar tokens de LLM.
+    if not npcs:
+        return ObserveResponse(descricao=_narracao_local_vazio(local))
+
+    jogador = _get_or_create_jogador(db)
+    perfil_resumido = _resumo_perfil(jogador.perfil_psicologico or {})
+
+    npcs_brief = "\n".join(
+        f"- {n.nome} (afeição {n.afeicao}/100, humor {n.humor_atual})"
+        for n in npcs
+    )
+
+    system_prompt = (
+        "Você é o NARRADOR de uma Visual Novel em pt-BR. Sua função é "
+        "descrever, em 1 ou 2 parágrafos curtos (no máximo 4 frases no "
+        "total), a atmosfera do local e a linguagem corporal dos NPCs "
+        "presentes ao notarem a chegada do jogador.\n\n"
+        f"LOCAL: {local.nome}. {local.descricao}\n\n"
+        "PERFIL DO JOGADOR (lousa em branco pós-amnésia, ainda se "
+        f"definindo): tons predominantes — {perfil_resumido}.\n\n"
+        f"NPCS PRESENTES E AFEIÇÃO ATUAL (escala 0–100):\n{npcs_brief}\n\n"
+        "REGRAS RÍGIDAS:\n"
+        "1. SHOW, DON'T TELL. Você NUNCA cita afeição, humor, números ou "
+        "perfil diretamente. Mostra as consequências através de gestos, "
+        "olhares, postura, voz, respiração, distância física, ritmo da "
+        "ação que o NPC já estava fazendo.\n"
+        "2. Mapeamento implícito (use, não cite):\n"
+        "   - Afeição alta (>70): contato visual, sorriso involuntário, "
+        "aproximação, voz mais leve, pausa o que estava fazendo.\n"
+        "   - Afeição média (30–70): olhar de relance, postura neutra, "
+        "ações que continuam sem se acomodar ao jogador.\n"
+        "   - Afeição baixa (<30): evita olhar, fecha a postura, foca "
+        "exageradamente em outra coisa, voz curta, vira de costas.\n"
+        "3. NÃO gere diálogo. Nenhuma fala entre aspas. Só narração em "
+        "terceira pessoa, no presente do indicativo.\n"
+        "4. Se houver mais de um NPC, dê uma frase distinta para cada um, "
+        "respeitando a afeição individual.\n"
+        "5. Tom literário, conciso. Evite clichês ('o ar está pesado', "
+        "'o silêncio cortava a sala').\n\n"
+        'Responda em JSON com EXATAMENTE uma chave: {"descricao": str}.'
+    )
+    user_prompt = (
+        f"O jogador acaba de entrar em '{local.nome}' e olha em volta. "
+        "Descreva o que ele vê e sente."
+    )
+
+    try:
+        raw = chat_json(system_prompt, user_prompt, temperature=0.85, max_tokens=350)
+        descricao = str(raw.get("descricao") or "").strip()
+    except Exception:
+        logger.exception("Falha no Narrador do /observe")
+        descricao = ""
+
+    if not descricao:
+        descricao = _narracao_fallback(local, npcs)
+
+    return ObserveResponse(descricao=descricao)
 
 
 # ============================================================
