@@ -76,6 +76,11 @@ default npcs_presentes = []       # lista de dicts {id, nome, humor_atual, ...}
 default tick_atual_jogo = 0
 default hora_jogo = "06:00"       # HH:MM da hora de jogo atual
 
+# Cache da auto-observação (invalida se local OU tick mudarem)
+default cache_obs_local = None
+default cache_obs_tick = -1
+default cache_obs_texto = ""
+
 
 # ============================================================
 # Helper assíncrono — fala com qualquer NPC via /interact
@@ -150,12 +155,14 @@ label _talk_with_mei:
 # ============================================================
 # Observação dinâmica do ambiente — narrador via /observe
 # ============================================================
-# Mostra a screen `api_observing` enquanto a thread de /observe roda,
-# então exibe a descrição como narração padrão (sem speaker).
+# Roda o /observe assíncrono e GRAVA o resultado em `cache_obs_texto`.
+# Quem chamou (main_loop) é responsável por exibir o texto e atualizar
+# as chaves de cache (local + tick). Mantém a screen `api_observing`
+# durante o request pra não travar a UI.
 
 label _observar:
     if not api_online:
-        "Você fica em silêncio um instante, só olhando ao redor."
+        $ cache_obs_texto = "Você fica em silêncio um instante, só olhando ao redor."
         return
 
     python:
@@ -168,8 +175,7 @@ label _observar:
 
     hide screen api_observing
 
-    $ obs_descricao = parse_observe_response(obs_handle)
-    "[obs_descricao]"
+    $ cache_obs_texto = parse_observe_response(obs_handle)
     return
 
 
@@ -356,8 +362,15 @@ label main_loop:
             xform = Transform(xpos=xpos, xanchor=0.5, ypos=ypos, yanchor=1.0)
             renpy.show(sprite, at_list=[xform])
 
-    # (a narração de quem está aqui agora vem dinamicamente do /observe,
-    # acionado pela escolha "Apenas observar" no menu)
+    # ---- Auto-observação com cache (local + tick) ----
+    # Só queima token de Qwen quando o jogador trocou de local OU o tempo
+    # avançou. Re-renders do mesmo (local, tick) reaproveitam a string.
+    if cache_obs_local != local_jogador_id or cache_obs_tick != tick_atual_jogo:
+        call _observar
+        $ cache_obs_local = local_jogador_id
+        $ cache_obs_tick = tick_atual_jogo
+
+    "[cache_obs_texto]"
 
     # ---- Menu principal ----
     $ destinos = [l for l in locais_cache if l["id"] != local_jogador_id]
@@ -379,7 +392,11 @@ label main_loop:
             jump main_loop
 
         "Apenas observar":
-            call _observar
+            if api_online:
+                python:
+                    ws = api.world_tick(delta_ticks=1) or {}
+                    tick_atual_jogo = ws.get("tick_atual", tick_atual_jogo)
+            "Você deixa o tempo passar um pouco..."
             jump main_loop
 
         "Ir para outro lugar...":
